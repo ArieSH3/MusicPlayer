@@ -25,8 +25,8 @@
 
 		  _______________________________
 		  | ____________  ______________ |
-		  ||		||		||
-		  ||  controls	||     list	||
+		  ||			||				||
+		  ||  controls	||	   list		||
 		  ||____________||______________||
 		  | ____________________________ |
 		  ||        time tracker        ||
@@ -201,37 +201,56 @@ class MusicPlayer:
 class MP_GUI:
 	def __init__(self, root, files_location): # parent is the window/root(tk.Tk()) that is passed as argument to class
 		self.music_player = MusicPlayer(files_location)
+
+		self.theme_color = '#BDE038'
+		self.theme_color_accent = '#D9296A'
+		self.theme_bg_color = '#242824'
+		self.font = 'Helvetica 10 bold'
 		
 		self.root = root
 		# < Create rest of GUI here >
 		self.root.title('Music Player by ArieSH')
 		self.root.geometry('700x400')
-		self.root.config(bg='black')
+		self.root.config(bg=self.theme_bg_color)
 
 		# FRAMEs
 			# Left
 		self.frame_left = tk.Frame(self.root)
-		self.frame_left.pack(side='left', fill='both', expand=True)
-		self.frame_left.config(bg='black')
-			# Left Nested
-		self.frame_left_inner = tk.Frame(self.frame_left)
-		self.frame_left_inner.pack(pady=50, padx=50, fill='both')
-		self.frame_left_inner.config(bg='black')
-			# Bottom Nested
-		self.frame_bottom_inner = tk.Frame(self.frame_left)
-		self.frame_bottom_inner.pack(fill='both', padx=20)
-		self.frame_bottom_inner.config(bg='black')
-		# --------------------------------------------------------------
-		
+		self.frame_left.config(bg=self.theme_bg_color, width=200, height=200)
+		self.frame_left.grid(column=0, row=0)
 			# Right
 		self.frame_right = tk.Frame(self.root)
-		self.frame_right.pack(side='right', fill='both', expand=True)
-		self.frame_right.config(bg='black')		
-			# Right Nested
-		self.frame_right_inner = tk.Frame(self.frame_right)
-		self.frame_right_inner.pack(pady=50, padx=50, fill='both')
-		self.frame_right_inner.config(bg='black')
-		# --------------------------------------------------------------
+		self.frame_right.config(bg=self.theme_bg_color, width=200, height=200)
+		self.frame_right.grid(column=1, row=0)
+			# Bottom
+		self.frame_bottom = tk.Frame(self.root)
+		self.frame_bottom.config(width=700, height=160, bg=self.theme_bg_color)
+		self.frame_bottom.grid(column=0, row=1, columnspan=2)
+
+		# # FRAMEs
+		# 	# Left
+		# self.frame_left = tk.Frame(self.root)
+		# self.frame_left.pack(side='left', fill='both', expand=True)
+		# self.frame_left.config(bg='black')
+		# 	# Left Nested
+		# self.frame_left_inner = tk.Frame(self.frame_left)
+		# self.frame_left_inner.pack(pady=50, padx=50, fill='both')
+		# self.frame_left_inner.config(bg='black')
+		# 	# Bottom Nested
+		# self.frame_bottom_inner = tk.Frame(self.frame_left)
+		# self.frame_bottom_inner.pack(fill='both', padx=20)
+		# self.frame_bottom_inner.config(bg='black')
+		# # --------------------------------------------------------------
+		
+		# 	# Right
+		# self.frame_right = tk.Frame(self.root)
+		# self.frame_right.pack(side='right', fill='both', expand=True)
+		# self.frame_right.config(bg='black')		
+		# 	# Right Nested
+		# self.frame_right_inner = tk.Frame(self.frame_right)
+		# self.frame_right_inner.pack(pady=50, padx=50, fill='both')
+		# self.frame_right_inner.config(bg='black')
+		# # --------------------------------------------------------------
 
 		# IMAGES
 			# Play
@@ -252,42 +271,81 @@ class MP_GUI:
 			
 		# BUTTONS
 			# Play
-		self.button_play = tk.Button(self.frame_left_inner, text='Play', image=self.img_play, font='none 10 bold', command=self.selected_song)
-		self.button_play.config(activebackground='orange', bg='darkorange')
-		self.button_play.pack(fill='both')
+		self.button_play = tk.Button(self.frame_left, text='Play', image=self.img_play, font='none 10 bold', command=self.selected_song)
+		self.button_play.config(activebackground=self.theme_color_accent, bg=self.theme_color, width=200)
+		self.button_play.grid(column=0, row=0, columnspan=2, pady=(50,0), padx=(40,0))
 			# Pause
-		self.button_pause = tk.Button(self.frame_left_inner, text='Pause', image=self.img_pause, font='none 10 bold', command=self.music_player.pause_song)
-		self.button_pause.config(activebackground='orange', bg='darkorange')
-		self.button_pause.pack(fill='both')
+		self.button_pause = tk.Button(self.frame_left, text='Pause', image=self.img_pause, font='none 10 bold', command=self.music_player.pause_song)
+		self.button_pause.config(activebackground=self.theme_color_accent, bg=self.theme_color, width=200)
+		self.button_pause.grid(column=0, row=1, columnspan=2, padx=(40,0))
 			# Stop
-		self.button_stop = tk.Button(self.frame_left_inner, text='Stop', image=self.img_stop, font='none 10 bold', command=self.music_player.stop_song)
-		self.button_stop.config(activebackground='orange', bg='darkorange')
-		self.button_stop.pack(fill='both')
+		self.button_stop = tk.Button(self.frame_left, text='Stop', image=self.img_stop, font='none 10 bold', command=self.music_player.stop_song)
+		self.button_stop.config(activebackground=self.theme_color_accent, bg=self.theme_color, width=200)
+		self.button_stop.grid(column=0, row=2, columnspan=2, padx=(40,0))
 			# Previous
-		self.button_previous_song = tk.Button(self.frame_left_inner, text='Previous', image=self.img_previous, font='none 10 bold', command=self.music_player.previous_song)
-		self.button_previous_song.config(activebackground='orange', bg='darkorange')
-		self.button_previous_song.pack(side='left', fill='both', expand=True)
+		self.button_previous_song = tk.Button(self.frame_left, text='Previous', image=self.img_previous, font='none 10 bold', command=self.music_player.previous_song)
+		self.button_previous_song.config(activebackground=self.theme_color_accent, bg=self.theme_color, width=97)
+		self.button_previous_song.grid(column=0, row=3, padx=(40,0))
 			# Next
-		self.button_next_song = tk.Button(self.frame_left_inner, text='Next', image=self.img_next, font='none 10 bold', command=self.music_player.next_song)
-		self.button_next_song.config(activebackground='orange', bg='darkorange')
-		self.button_next_song.pack(side='left', fill='both', expand=True)
+		self.button_next_song = tk.Button(self.frame_left, text='Next', image=self.img_next, font='none 10 bold', command=self.music_player.next_song)
+		self.button_next_song.config(activebackground=self.theme_color_accent, bg=self.theme_color, width=97)
+		self.button_next_song.grid(column=1, row=3)
 
 		# LISTBOX
-		self.listbox_music = tk.Listbox(self.frame_right_inner, selectmode='BROWSE')
-		self.listbox_music.config(fg='darkorange', bg='black', highlightbackground='darkorange', highlightcolor='darkorange')
+		self.listbox_music = tk.Listbox(self.frame_right, selectmode='BROWSE')
+		self.listbox_music.config(font=self.font, fg=self.theme_color, bg=self.theme_bg_color, highlightbackground=self.theme_color, highlightcolor=self.theme_color, width=50)
 
 		tracker = 1
 		for s in self.music_player.song_list():
 			self.listbox_music.insert(tracker, s.split('.')[0])
 			tracker += 1
 
-		self.listbox_music.pack(fill='both')
+		self.listbox_music.grid(pady=(70,0))
 
 		# SCALE
-		self.scale_volume = tk.Scale(self.frame_bottom_inner, command=self.music_player.volume)
-		self.scale_volume.config(highlightbackground='darkorange', bd=0, showvalue=0, orient='horizontal', length=100, troughcolor='black', activebackground='orange', bg='darkorange')
+		self.scale_volume = tk.Scale(self.frame_left, command=self.music_player.volume)
+		self.scale_volume.config(highlightbackground=self.theme_color, bd=0, showvalue=0, orient='horizontal', length=100, troughcolor=self.theme_bg_color, activebackground=self.theme_color_accent, bg=self.theme_color)
 		self.scale_volume.set(100)
-		self.scale_volume.pack(fill='both', expand=True)
+		self.scale_volume.grid(column=1, row=4, pady=(40,0))
+
+		# # BUTTONS
+		# 	# Play
+		# self.button_play = tk.Button(self.frame_left_inner, text='Play', image=self.img_play, font='none 10 bold', command=self.selected_song)
+		# self.button_play.config(activebackground='orange', bg='darkorange')
+		# self.button_play.pack(fill='both')
+		# 	# Pause
+		# self.button_pause = tk.Button(self.frame_left_inner, text='Pause', image=self.img_pause, font='none 10 bold', command=self.music_player.pause_song)
+		# self.button_pause.config(activebackground='orange', bg='darkorange')
+		# self.button_pause.pack(fill='both')
+		# 	# Stop
+		# self.button_stop = tk.Button(self.frame_left_inner, text='Stop', image=self.img_stop, font='none 10 bold', command=self.music_player.stop_song)
+		# self.button_stop.config(activebackground='orange', bg='darkorange')
+		# self.button_stop.pack(fill='both')
+		# 	# Previous
+		# self.button_previous_song = tk.Button(self.frame_left_inner, text='Previous', image=self.img_previous, font='none 10 bold', command=self.music_player.previous_song)
+		# self.button_previous_song.config(activebackground='orange', bg='darkorange')
+		# self.button_previous_song.pack(side='left', fill='both', expand=True)
+		# 	# Next
+		# self.button_next_song = tk.Button(self.frame_left_inner, text='Next', image=self.img_next, font='none 10 bold', command=self.music_player.next_song)
+		# self.button_next_song.config(activebackground='orange', bg='darkorange')
+		# self.button_next_song.pack(side='left', fill='both', expand=True)
+
+		# # LISTBOX
+		# self.listbox_music = tk.Listbox(self.frame_right_inner, selectmode='BROWSE')
+		# self.listbox_music.config(fg='darkorange', bg='black', highlightbackground='darkorange', highlightcolor='darkorange')
+
+		# tracker = 1
+		# for s in self.music_player.song_list():
+		# 	self.listbox_music.insert(tracker, s.split('.')[0])
+		# 	tracker += 1
+
+		# self.listbox_music.pack(fill='both')
+
+		# # SCALE
+		# self.scale_volume = tk.Scale(self.frame_bottom_inner, command=self.music_player.volume)
+		# self.scale_volume.config(highlightbackground='darkorange', bd=0, showvalue=0, orient='horizontal', length=100, troughcolor='black', activebackground='orange', bg='darkorange')
+		# self.scale_volume.set(100)
+		# self.scale_volume.pack(fill='both', expand=True)
 	
 
 
