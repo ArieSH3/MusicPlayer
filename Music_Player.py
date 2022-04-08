@@ -40,7 +40,7 @@
 	  a list of songs they wish to be added to the current song list and can choose 
 	  from those select songs which one they will play
 	  	
-	  	**Also enable user to go in multiple folders to pull songs from (WORKS NOW!!!)
+	  	**Also enable user to go in multiple folders to pull songs from 						(DONE)
 	 ______________________________________________________________________________________
 
 	
@@ -53,7 +53,24 @@
 	 ______________________________________________________________________________________
 
 	- ***Make a functional Remove From Playlist button that will give the user an option to
-		select and remove songs that they no longer want in the list(box)
+		select and remove songs that they no longer want in the list(box) 						(DONE)
+	 ______________________________________________________________________________________
+
+	- *Maybe try to give option to expand the window with (root.geometry(higher res)) if it can
+		be done that way and within that epansion keep more functionality like changing the pitch,
+		bass and other things within the music you listen to. (HIGHLY UNLIKELY)
+	 ______________________________________________________________________________________
+
+	- **Add the music timeline(possibly with Scale) where it will update as music goes on and can
+		be used to put song on specific time
+	 ______________________________________________________________________________________
+
+	- **Add shuffle and loop buttons
+	______________________________________________________________________________________
+
+	- **Add buttons that skip the song 10 seconds forward and 10 seconds backward every time they
+		are clicked
+
 
 '''
 import pygame
