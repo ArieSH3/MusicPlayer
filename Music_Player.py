@@ -16,6 +16,7 @@
 	those classes to actual buttons 
 
 
+	 ______________________________________________________________________________________
 	TO DO LIST:
 	
 	- *** Set up frames in tkinter as children of main root and dont pack, but grid them ***
@@ -32,6 +33,28 @@
 		  ||        time tracker        ||
 		  ||____________________________||
 		  |______________________________|
+	 ______________________________________________________________________________________
+
+
+	- ***Make a functional Add To Playlist button that will prompt the user to choose
+	  a list of songs they wish to be added to the current song list and can choose 
+	  from those select songs which one they will play
+	  	
+	  	**Also enable user to go in multiple folders to pull songs from (WORKS NOW!!!)
+	 ______________________________________________________________________________________
+
+	
+	- ***Set the ability to change the initial folder the program looks in when adding to playlist
+		so the user doesn't have to either keep folder with music inside folder with music player
+		or so that he doesnt have to go back every time to a different folder from the one where
+		music player is.
+			Maybe use the text file to save the folder path the program will read and 
+			open by default every time it starts
+	 ______________________________________________________________________________________
+
+	- ***Make a functional Remove From Playlist button that will give the user an option to
+		select and remove songs that they no longer want in the list(box)
+
 '''
 import pygame
 import os
@@ -39,6 +62,7 @@ import sys
 import pprint
 import time
 import tkinter as tk
+from tkinter import filedialog
 
 class MusicPlayer:
 
@@ -50,44 +74,44 @@ class MusicPlayer:
 		self.__fadeout = 300 # Fadeout duration for song stop
 		self.current_song = None
 		self.song = 0
+		self.song_stopped = False
+		#self.filepath = []
+		self.playlist_songs = []
 
 		pygame.mixer.init()
 
 	
-	# def options(self):
-	# 	print('Player options:')
-	# 	print(' song_list()')
-	# 	print(' get_song()')
-	# 	print(' play_song()')
-	# 	print(' pause_song()')
-	# 	print(' next_song()')
-	# 	print(' previous_song()')
-	# 	print(' show_volume()')
-	# 	print(' change_volume()')
-	# 	print(' shuffle()\n')
+	def song_list(self, num): # Show a [list] of all available songs
+		# if num == None:
+		# 	return []#os.listdir(self.files_location)
+		# else:
+		return num
 
 	
-	def song_list(self, num=None): # Show a [list] of all available songs
-		# Pretty print used for printing a list in a more readable manner
-		
-		# pp = pprint.PrettyPrinter(indent=4)
-		# pp.pprint(os.listdir(self.files_location))
-		# print('Length: ', len(os.listdir(self.files_location)))
-		
-		# for s in range(len(os.listdir(self.files_location))):
-		# 	print(f'{s}:',os.listdir(self.files_location)[s].split('.')[0])
-		# print()
-		if num==None:
-			return os.listdir(self.files_location)
+	# NEEDS WORK CUS I DONT KNOW WHATS WRONG AND HOW TO DO IT (FIXED!!!)
+	# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+	
+	# ***Needs a fix when adding additional songs to the listbox. It jumbles it up
+	# and adds duplicates which is not playable then. (FIXED!!!)
+	def add_to_playlist(self):
+		self.filepath = filedialog.askopenfilenames(title='Import shapefile', initialdir='./Music', filetypes=[('Music Files','.mp3')])
+		# Extracts song from filepath(tuple with full destination*MIGHT BE USED TO ACCESS FOLDERED SONGS)
+		# Fills playlist_songs with full paths to the song so pulling songs from multiple folders should
+		# present no issue
+		for s in range(len(self.filepath)):
+			if self.filepath[s] not in self.playlist_songs:
+				self.playlist_songs.append(self.filepath[s])
+
+	# Enable removal of songs from current playlist
+	def remove_from_playlist(self, song):
+		# Checks if index wont be out of bound since removing one lowers number of elements in a list
+		# so if index higher than number of elements it will just remove the final element
+		if len(self.playlist_songs) >= song:
+			self.playlist_songs.pop(song)
 		else:
-			return os.listdir(self.files_location)[num]
+			self.playlist_songs.pop()
 
-	# def show_song_list(self):
-	# 	for s in range(len(os.listdir(self.files_location))):
-	# 		print(f'{s}:',os.listdir(self.files_location)[s].split('.')[0])
-	# 	print()
 
-	
 	def get_song(self, song): # Pick and load the song in the player
 		self.song = song
 		if self.current_song == None:
@@ -101,19 +125,30 @@ class MusicPlayer:
 		# to play it. This code then acts accordingly
 		if self.song != self.current_song:# and self.current_song != None:
 			self.current_song = self.song
-			pygame.mixer.music.load('/'.join((self.files_location, self.song_list()[self.current_song])))
+			pygame.mixer.music.load(self.playlist_songs[self.current_song])
 			pygame.mixer.music.play()
 
 		if self.__audio_paused: # Checks if song is paused (Means it is already loaded and played) and unpauses it
-			pygame.mixer.music.unpause()
-			print('Unpaused')
-			self.__audio_paused = False
+			# FIX!: Checks if song is stopped and if so then it wont try to
+			# unpause but instead just load and play the song again
+			# *Bug was that if you pause a song and then stop it and try to play,
+			# it would first unpause and then play it on the second click
+			if self.song_stopped:
+				pygame.mixer.music.load(self.playlist_songs[self.current_song])
+				pygame.mixer.music.play()
+				self.song_stopped = False
+			# Else if paused and not stopped then it just unpauses it
+			else:
+				pygame.mixer.music.unpause()
+				print('Unpaused')
+				self.__audio_paused = False
 		# Checks if audio paused and if audio is already playing then play_song wont rewind it but instead
 		# it will do nothing thanks to (not pygame.mixer.music.get_busy()) check
 		elif not self.__audio_paused and not pygame.mixer.music.get_busy(): # Checks if song is not paused(means it still isnt loaded and played)
-			pygame.mixer.music.load('/'.join((self.files_location, self.song_list()[self.current_song])))
+			pygame.mixer.music.load(self.playlist_songs[self.current_song])
 			pygame.mixer.music.play()
-			print('Playing: ', self.song_list()[self.song].split('.')[0])
+			print('Playing: ', self.playlist_songs[self.song].split('.')[0])
+			self.song_stopped = False
 
 		self.current_song = self.song
 
@@ -127,46 +162,38 @@ class MusicPlayer:
 		pygame.mixer.music.stop()
 		#pygame.mixer.music.fadeout(self.__fadeout) #Can bug out the player
 		pygame.mixer.music.unload()
+		self.song_stopped = True
 	
 	def next_song(self): # Play next song in the list if available
-		self.stop_song()
+		#self.stop_song()
 		# Plays next song in list
 		try:
 			self.get_song(self.song+1)
 			self.play_song()
 		# If error then it goes to the beginning of the list (Might be a crude way to do it but it works)
 		except IndexError:
-			self.get_song(0)
-			self.play_song()
+			print('Final song in list!')
+			# self.get_song(0)
+			# self.play_song()
 
 	def previous_song(self): # Play previous song in the list if available
-		# Checks if song has been playing less than 10 seconds and if so it goes to previous song
-		if pygame.mixer.music.get_pos()/1000 <= 10:
-			# Plays previous song in list
-			# If on first song (which is 0 in list) it will turn it to -1 which means
-			# it goes back to the back of the list which works out perfectly
-			self.stop_song()
-			self.get_song(self.song-1)
-			self.play_song()
-		
-		# If song has playes more than 10 seconds it will go back to the beggining of the same song
-		# Same as rewind
-		elif pygame.mixer.music.get_pos()/1000 > 10:
-			self.stop_song()
-			self.play_song()
-
-
-	# def show_volume(self): # Show current volume (Can be used to mouseover icon to see volume)
-	# 	print('Current volume: {}'.format(self.volume))
-	
-	# def change_volume(self, volume): # Change current volume
-	# 	# Check that volume is withing acceptable range
-	# 	if volume > 100:
-	# 		self.volume = 100
-	# 	elif volume < 0:
-	# 		self.volume = 0
-	# 	else:
-	# 		self.volume = volume
+		try:	
+			# Checks if song has been playing less than 10 seconds and if so it goes to previous song
+			if pygame.mixer.music.get_pos()/1000 <= 10:
+				# Plays previous song in list
+				# If on first song (which is 0 in list) it will turn it to -1 which means
+				# it goes back to the back of the list which works out perfectly
+				#self.stop_song()
+				self.get_song(self.song-1)
+				self.play_song()
+			
+			# If song has playes more than 10 seconds it will go back to the beggining of the same song
+			# Same as rewind
+			elif pygame.mixer.music.get_pos()/1000 > 10:
+				self.stop_song()
+				self.play_song()
+		except IndexError:
+			print('First song in list!')
 
 	
 	def volume(self, player_volume = 100): # Just show volume if no argument and show and change if there is argument
@@ -175,26 +202,8 @@ class MusicPlayer:
 		pygame.mixer.music.set_volume(int(player_volume)/100)
 
 
-		# if player_volume != None:
-		# 	try:
-		# 		# Check that volume is withing acceptable range
-		# 		if player_volume> 100:
-		# 			self.player_volume = 100
-		# 		elif player_volume < 0:
-		# 			self.player_volume = 0
-		# 		else:
-		# 			self.player_volume = player_volume
-
-		# 		print('Current volume: {}'.format(self.player_volume))
-
-		# 	except TypeError:
-		# 		print('Error: Value not a number')
-		# else:
-		# 	print('Current volume: {}'.format(self.player_volume))
-
-
 	def song_position(self, song_time=None):
-		pass
+		print(pygame.mixer.music.get_pos())
 
 
 # Tkinter GUI
@@ -206,9 +215,13 @@ class MP_GUI:
 		self.theme_color_accent = '#D9296A'
 		self.theme_bg_color = '#242824'
 		self.font = 'Helvetica 10 bold'
+
+		self.mult_browse_select = False
 		
 		self.root = root
 		# < Create rest of GUI here >
+			# Allow or not resize for x, y
+		self.root.resizable(False, False)
 		self.root.title('Music Player by ArieSH')
 		self.root.geometry('700x400')
 		self.root.config(bg=self.theme_bg_color)
@@ -226,31 +239,6 @@ class MP_GUI:
 		self.frame_bottom = tk.Frame(self.root)
 		self.frame_bottom.config(width=700, height=160, bg=self.theme_bg_color)
 		self.frame_bottom.grid(column=0, row=1, columnspan=2)
-
-		# # FRAMEs
-		# 	# Left
-		# self.frame_left = tk.Frame(self.root)
-		# self.frame_left.pack(side='left', fill='both', expand=True)
-		# self.frame_left.config(bg='black')
-		# 	# Left Nested
-		# self.frame_left_inner = tk.Frame(self.frame_left)
-		# self.frame_left_inner.pack(pady=50, padx=50, fill='both')
-		# self.frame_left_inner.config(bg='black')
-		# 	# Bottom Nested
-		# self.frame_bottom_inner = tk.Frame(self.frame_left)
-		# self.frame_bottom_inner.pack(fill='both', padx=20)
-		# self.frame_bottom_inner.config(bg='black')
-		# # --------------------------------------------------------------
-		
-		# 	# Right
-		# self.frame_right = tk.Frame(self.root)
-		# self.frame_right.pack(side='right', fill='both', expand=True)
-		# self.frame_right.config(bg='black')		
-		# 	# Right Nested
-		# self.frame_right_inner = tk.Frame(self.frame_right)
-		# self.frame_right_inner.pack(pady=50, padx=50, fill='both')
-		# self.frame_right_inner.config(bg='black')
-		# # --------------------------------------------------------------
 
 		# IMAGES
 			# Play
@@ -271,85 +259,53 @@ class MP_GUI:
 			
 		# BUTTONS
 			# Play
-		self.button_play = tk.Button(self.frame_left, text='Play', image=self.img_play, font='none 10 bold', command=self.selected_song)
+		self.button_play = tk.Button(self.frame_left, text='Play', image=self.img_play, command=self.selected_song)
 		self.button_play.config(activebackground=self.theme_color_accent, bg=self.theme_color, width=200)
 		self.button_play.grid(column=0, row=0, columnspan=2, pady=(50,0), padx=(40,0))
 			# Pause
-		self.button_pause = tk.Button(self.frame_left, text='Pause', image=self.img_pause, font='none 10 bold', command=self.music_player.pause_song)
+		self.button_pause = tk.Button(self.frame_left, text='Pause', image=self.img_pause, command=self.music_player.pause_song)
 		self.button_pause.config(activebackground=self.theme_color_accent, bg=self.theme_color, width=200)
 		self.button_pause.grid(column=0, row=1, columnspan=2, padx=(40,0))
 			# Stop
-		self.button_stop = tk.Button(self.frame_left, text='Stop', image=self.img_stop, font='none 10 bold', command=self.music_player.stop_song)
+		self.button_stop = tk.Button(self.frame_left, text='Stop', image=self.img_stop, command=self.music_player.stop_song)
 		self.button_stop.config(activebackground=self.theme_color_accent, bg=self.theme_color, width=200)
 		self.button_stop.grid(column=0, row=2, columnspan=2, padx=(40,0))
 			# Previous
-		self.button_previous_song = tk.Button(self.frame_left, text='Previous', image=self.img_previous, font='none 10 bold', command=self.music_player.previous_song)
+		self.button_previous_song = tk.Button(self.frame_left, text='Previous', image=self.img_previous, command=self.music_player.previous_song)
 		self.button_previous_song.config(activebackground=self.theme_color_accent, bg=self.theme_color, width=97)
 		self.button_previous_song.grid(column=0, row=3, padx=(40,0))
 			# Next
-		self.button_next_song = tk.Button(self.frame_left, text='Next', image=self.img_next, font='none 10 bold', command=self.music_player.next_song)
+		self.button_next_song = tk.Button(self.frame_left, text='Next', image=self.img_next, command=self.music_player.next_song)
 		self.button_next_song.config(activebackground=self.theme_color_accent, bg=self.theme_color, width=97)
 		self.button_next_song.grid(column=1, row=3)
+			# Multiple/Browse Select
+		self.button_mult_browse = tk.Button(self.frame_right, text='Mult/Browse Select', command=self.listbox_browse_to_multiple)
+		self.button_mult_browse.pack(side='bottom')
+			# Remove From Playlist
+		self.button_remove_from_playlist =tk.Button(self.frame_right, text='Remove', font='Helvetica 10 bold', command=self.remove_song)
+		self.button_remove_from_playlist.config(font=self.font, activebackground=self.theme_color_accent, bg=self.theme_color, width=20)
+		self.button_remove_from_playlist.pack(side='bottom')
+			# Add To Playlist
+		self.button_add_to_playlist = tk.Button(self.frame_right, text='Add To Playlist', font='Helvetica 10 bold', command=self.update_listbox)
+		self.button_add_to_playlist.config(font=self.font, activebackground=self.theme_color_accent, bg=self.theme_color, width=20)
+		self.button_add_to_playlist.pack(side='bottom')
 
 		# LISTBOX
-		self.listbox_music = tk.Listbox(self.frame_right, selectmode='BROWSE')
+		self.listbox_music = tk.Listbox(self.frame_right, selectmode=tk.BROWSE)
 		self.listbox_music.config(font=self.font, fg=self.theme_color, bg=self.theme_bg_color, highlightbackground=self.theme_color, highlightcolor=self.theme_color, width=50)
-
-		tracker = 1
-		for s in self.music_player.song_list():
-			self.listbox_music.insert(tracker, s.split('.')[0])
-			tracker += 1
-
-		self.listbox_music.grid(pady=(70,0))
-
-		# SCALE
-		self.scale_volume = tk.Scale(self.frame_left, command=self.music_player.volume)
-		self.scale_volume.config(highlightbackground=self.theme_color, bd=0, showvalue=0, orient='horizontal', length=100, troughcolor=self.theme_bg_color, activebackground=self.theme_color_accent, bg=self.theme_color)
-		self.scale_volume.set(100)
-		self.scale_volume.grid(column=1, row=4, pady=(40,0))
-
-		# # BUTTONS
-		# 	# Play
-		# self.button_play = tk.Button(self.frame_left_inner, text='Play', image=self.img_play, font='none 10 bold', command=self.selected_song)
-		# self.button_play.config(activebackground='orange', bg='darkorange')
-		# self.button_play.pack(fill='both')
-		# 	# Pause
-		# self.button_pause = tk.Button(self.frame_left_inner, text='Pause', image=self.img_pause, font='none 10 bold', command=self.music_player.pause_song)
-		# self.button_pause.config(activebackground='orange', bg='darkorange')
-		# self.button_pause.pack(fill='both')
-		# 	# Stop
-		# self.button_stop = tk.Button(self.frame_left_inner, text='Stop', image=self.img_stop, font='none 10 bold', command=self.music_player.stop_song)
-		# self.button_stop.config(activebackground='orange', bg='darkorange')
-		# self.button_stop.pack(fill='both')
-		# 	# Previous
-		# self.button_previous_song = tk.Button(self.frame_left_inner, text='Previous', image=self.img_previous, font='none 10 bold', command=self.music_player.previous_song)
-		# self.button_previous_song.config(activebackground='orange', bg='darkorange')
-		# self.button_previous_song.pack(side='left', fill='both', expand=True)
-		# 	# Next
-		# self.button_next_song = tk.Button(self.frame_left_inner, text='Next', image=self.img_next, font='none 10 bold', command=self.music_player.next_song)
-		# self.button_next_song.config(activebackground='orange', bg='darkorange')
-		# self.button_next_song.pack(side='left', fill='both', expand=True)
-
-		# # LISTBOX
-		# self.listbox_music = tk.Listbox(self.frame_right_inner, selectmode='BROWSE')
-		# self.listbox_music.config(fg='darkorange', bg='black', highlightbackground='darkorange', highlightcolor='darkorange')
+		self.listbox_music.pack(pady=(70,0))
 
 		# tracker = 1
 		# for s in self.music_player.song_list():
 		# 	self.listbox_music.insert(tracker, s.split('.')[0])
 		# 	tracker += 1
 
-		# self.listbox_music.pack(fill='both')
-
-		# # SCALE
-		# self.scale_volume = tk.Scale(self.frame_bottom_inner, command=self.music_player.volume)
-		# self.scale_volume.config(highlightbackground='darkorange', bd=0, showvalue=0, orient='horizontal', length=100, troughcolor='black', activebackground='orange', bg='darkorange')
-		# self.scale_volume.set(100)
-		# self.scale_volume.pack(fill='both', expand=True)
+		# SCALE
+		self.scale_volume = tk.Scale(self.frame_left, command=self.music_player.volume)
+		self.scale_volume.config(highlightbackground=self.theme_color, bd=0, showvalue=0, orient='horizontal', length=100, troughcolor=self.theme_bg_color, activebackground=self.theme_color_accent, bg=self.theme_color)
+		self.scale_volume.set(100)
+		self.scale_volume.grid(column=1, row=4, pady=(40,0))
 	
-
-
-
 
 	# Checks the selection in list and loads it to get_song method of
 	# the MusicPlayer class
@@ -361,6 +317,63 @@ class MP_GUI:
 			self.music_player.get_song(i)
 			self.music_player.play_song()
 
+	def update_listbox(self, remove=None):
+		# Checks if button to add song has been clicked(remove remains None/False)
+		# or if remove song button has been clicked (remove changed to True)
+		if not remove:
+			self.music_player.add_to_playlist()
+		else:
+			print('working...')
+
+		# Checks if tracker is >0 then it means there are some songs in the listbox
+		# already and it clears the whole listbox and adds a new music playlist
+		# so that there are no duplicates in listbox and out of range errors when playing
+		# if tracker > 0:
+		# 	self.listbox_music.delete(0,tk.END)
+		# Adds songs from the music list to the listbox to be displayed and interacted with
+		tracker = 0
+		self.listbox_music.delete(0, tk.END)
+		for s in self.music_player.song_list(self.music_player.playlist_songs):
+			self.listbox_music.insert(tracker, s.split('/')[-1].split('.')[0])
+			tracker += 1
+			# if s.split('/')[-1].split('.')[0] in self.listbox_music.get(0,tk.END):
+			# 	# print('Listbox   ',self.listbox_music.get(0,tk.END))
+			# 	# print('Playlist   ',self.music_player.playlist_songs)
+			# 	tracker = len(self.listbox_music.get(0,tk.END))
+			# else:
+			# 	self.listbox_music.insert(tracker, s.split('/')[-1].split('.')[0])
+			# # Can add colour to individual list items
+			# #self.listbox_music.itemconfig("end", bg = "purple")
+			# 	tracker += 1
+
+		#print(self.listbox_music.get(0,tk.END))
+
+	def remove_song(self):
+		# Has trouble removing songs if they are last in t
+		for i in self.listbox_music.curselection():
+			print('Song number to pop: ', i)
+			#print(self.music_player.playlist_songs)
+			self.music_player.remove_from_playlist(i)
+			#print(self.music_player.playlist_songs)
+
+		self.update_listbox(remove=True)
+
+
+	def listbox_browse_to_multiple(self):
+		if not self.mult_browse_select:
+			self.listbox_music.config(selectmode = tk.MULTIPLE)
+			self.mult_browse_select = True
+			print('MULTIPLE')
+		elif self.mult_browse_select:
+			self.listbox_music.config(selectmode=tk.BROWSE)
+			self.mult_browse_select = False
+			print('BROWSE')
+
+			
+		
+		
+
+
 
 		
 
@@ -369,32 +382,8 @@ if __name__ == '__main__':
 	files_location = 'Music'
 
 	window = tk.Tk()
-	MP_GUI(window, files_location)
+	gui=MP_GUI(window, files_location)
 
-	
+
 	window.mainloop()
 	
-
-
-
-
-
-
-
-
-
-
-
-	# player = MusicPlayer(files_location)
-	# player.options()
-	# #player.volume(90)
-	# player.show_song_list()
-	# player.get_song(1) # Enter a number of a song you want to play
-	# player.play_song()
-	# time.sleep(5)
-	# player.play_song()
-	# time.sleep(5)
-	# player.play_song()
-	
-
-	# input()
