@@ -232,13 +232,18 @@ class MP_GUI:
 		self.frame_left.config(bg=self.theme_bg_color, width=200, height=200)
 		self.frame_left.grid(column=0, row=0)
 			# Right
-		self.frame_right = tk.Frame(self.root)
-		self.frame_right.config(bg=self.theme_bg_color, width=200, height=200)
-		self.frame_right.grid(column=1, row=0)
+				# Upper
+		self.frame_right_upper = tk.Frame(self.root)
+		self.frame_right_upper.config(bg=self.theme_bg_color, width=200, height=200)
+		self.frame_right_upper.grid(column=1, row=0)
+				# Lower
+		self.frame_right_lower = tk.Frame(self.root)
+		self.frame_right_lower.config(bg='white', width=200, height=200)
+		self.frame_right_lower.grid(column=1, row=1)
 			# Bottom
 		self.frame_bottom = tk.Frame(self.root)
 		self.frame_bottom.config(width=700, height=160, bg=self.theme_bg_color)
-		self.frame_bottom.grid(column=0, row=1, columnspan=2)
+		self.frame_bottom.grid(column=0, row=2, columnspan=2)
 
 		# IMAGES
 			# Play
@@ -278,33 +283,38 @@ class MP_GUI:
 		self.button_next_song = tk.Button(self.frame_left, text='Next', image=self.img_next, command=self.music_player.next_song)
 		self.button_next_song.config(activebackground=self.theme_color_accent, bg=self.theme_color, width=97)
 		self.button_next_song.grid(column=1, row=3)
-			# Multiple/Browse Select
-		self.button_mult_browse = tk.Button(self.frame_right, text='Mult/Browse Select', command=self.listbox_browse_to_multiple)
-		self.button_mult_browse.pack(side='bottom')
-			# Remove From Playlist
-		self.button_remove_from_playlist =tk.Button(self.frame_right, text='Remove', font='Helvetica 10 bold', command=self.remove_song)
-		self.button_remove_from_playlist.config(font=self.font, activebackground=self.theme_color_accent, bg=self.theme_color, width=20)
-		self.button_remove_from_playlist.pack(side='bottom')
+			
 			# Add To Playlist
-		self.button_add_to_playlist = tk.Button(self.frame_right, text='Add To Playlist', font='Helvetica 10 bold', command=self.update_listbox)
+		self.button_add_to_playlist = tk.Button(self.frame_right_lower, text='Add To Playlist', font='Helvetica 10 bold', command=self.update_listbox)
 		self.button_add_to_playlist.config(font=self.font, activebackground=self.theme_color_accent, bg=self.theme_color, width=20)
-		self.button_add_to_playlist.pack(side='bottom')
+		self.button_add_to_playlist.grid(column=0, row=0)
+			# Remove From Playlist
+		self.button_remove_from_playlist =tk.Button(self.frame_right_lower, text='Remove', font='Helvetica 10 bold', command=self.remove_song)
+		self.button_remove_from_playlist.config(font=self.font, activebackground=self.theme_color_accent, bg=self.theme_color, width=20)
+		self.button_remove_from_playlist.grid(column=0, row=1)	
+			# Multiple/Browse Select
+		self.button_mult_browse = tk.Button(self.frame_right_lower, text='Select Type', command=self.listbox_browse_to_multiple)
+		self.button_mult_browse.config(font=self.font, activebackground=self.theme_color_accent, bg=self.theme_color, width=10)
+		self.button_mult_browse.grid(column=1, row=0)
 
+		
 		# LISTBOX
-		self.listbox_music = tk.Listbox(self.frame_right, selectmode=tk.BROWSE)
+		self.listbox_music = tk.Listbox(self.frame_right_upper, selectmode=tk.BROWSE)
 		self.listbox_music.config(font=self.font, fg=self.theme_color, bg=self.theme_bg_color, highlightbackground=self.theme_color, highlightcolor=self.theme_color, width=50)
 		self.listbox_music.pack(pady=(70,0))
 
-		# tracker = 1
-		# for s in self.music_player.song_list():
-		# 	self.listbox_music.insert(tracker, s.split('.')[0])
-		# 	tracker += 1
-
+		
 		# SCALE
 		self.scale_volume = tk.Scale(self.frame_left, command=self.music_player.volume)
 		self.scale_volume.config(highlightbackground=self.theme_color, bd=0, showvalue=0, orient='horizontal', length=100, troughcolor=self.theme_bg_color, activebackground=self.theme_color_accent, bg=self.theme_color)
 		self.scale_volume.set(100)
 		self.scale_volume.grid(column=1, row=4, pady=(40,0))
+
+
+		# LABEL
+		self.label_selection_type = tk.Label(self.frame_right_lower, text='Browse')
+		self.label_selection_type.config(pady=6, padx=5, width=10, height=1,font=self.font, bd=0, bg=self.theme_bg_color, fg=self.theme_color)
+		self.label_selection_type.grid(column=1, row=1)
 	
 
 	# Checks the selection in list and loads it to get_song method of
@@ -362,10 +372,12 @@ class MP_GUI:
 	def listbox_browse_to_multiple(self):
 		if not self.mult_browse_select:
 			self.listbox_music.config(selectmode = tk.MULTIPLE)
+			self.label_selection_type.config(text='Multiple')
 			self.mult_browse_select = True
 			print('MULTIPLE')
 		elif self.mult_browse_select:
 			self.listbox_music.config(selectmode=tk.BROWSE)
+			self.label_selection_type.config(text='Browse')
 			self.mult_browse_select = False
 			print('BROWSE')
 
