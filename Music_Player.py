@@ -49,7 +49,7 @@
 		or so that he doesnt have to go back every time to a different folder from the one where
 		music player is.
 			Maybe use the text file to save the folder path the program will read and 
-			open by default every time it starts
+			open by default every time it starts												(DONE)
 	 ______________________________________________________________________________________
 
 	- ***Make a functional Remove From Playlist button that will give the user an option to
@@ -105,7 +105,6 @@ class MusicPlayer:
 		self.song = 0
 		self.song_stopped = False
 		self.playlist_songs = []
-		#self.song_length = None
 
 		pygame.mixer.init()
 
@@ -123,7 +122,7 @@ class MusicPlayer:
 	# ***Needs a fix when adding additional songs to the listbox. It jumbles it up
 	# and adds duplicates which is not playable then. (FIXED!!!)
 	def add_to_playlist(self):
-		self.filepath = filedialog.askopenfilenames(title='Import shapefile', initialdir='./Music', filetypes=[('Music Files','.mp3')])
+		self.filepath = filedialog.askopenfilenames(title='Import shapefile', initialdir=self.files_location, filetypes=[('Music Files','.mp3')])
 		# Extracts song from filepath(tuple with full destination*MIGHT BE USED TO ACCESS FOLDERED SONGS)
 		# Fills playlist_songs with full paths to the song so pulling songs from multiple folders should
 		# present no issue
@@ -460,7 +459,14 @@ class MP_GUI:
 	def stop_song_label_update(self):
 		self.music_player.stop_song()
 		self.label_current_song_playing.config(text='')
-			
+
+
+# Reads the .txt file that has full path of the music folder stored in it and returns the string
+def get_music_location():
+	with open('music_folder_location.txt', 'r') as f:
+		location = f.read()
+		f.close()
+		return location
 		
 		
 
@@ -470,7 +476,9 @@ class MP_GUI:
 
 if __name__ == '__main__':
 
-	files_location = 'Music'
+	# Gets the file location that is set in a text file (Can be changed by user to any location
+	# they keep their music at)
+	files_location = get_music_location()
 
 	window = tk.Tk()
 	gui=MP_GUI(window, files_location)
