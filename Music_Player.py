@@ -439,9 +439,20 @@ class MP_GUI:
 
 	# Updates labels text to the song name currently played and its duration in minutes and seconds
 	def label_current_song_playing_update(self):
-		self.label_current_song_playing.config(text=self.music_player.playlist_songs \
+		length = self.music_player.song_length()
+		hours = length[1]
+		minutes = length[2]
+		seconds = length[3]
+
+		if hours > 0:
+			self.label_current_song_playing.config(text=self.music_player.playlist_songs \
 			[self.music_player.song].split('/')[-1].split('.')[0] + ' (' + \
-			str(self.music_player.song_length()[2]) + 'm:' + str(self.music_player.song_length()[3]) + 's)')
+			str(hours) + 'h:' + str(minutes) + 'm:' + str(seconds) + 's)')
+
+		else:
+			self.label_current_song_playing.config(text=self.music_player.playlist_songs \
+			[self.music_player.song].split('/')[-1].split('.')[0] + ' (' + \
+			str(minutes) + 'm:' + str(seconds) + 's)')
 
 			
 		
