@@ -291,7 +291,7 @@ class MP_GUI:
 		self.frame_right_upper.grid(column=1, row=0, padx=40)
 				# Lower
 		self.frame_right_lower = tk.Frame(self.root)
-		self.frame_right_lower.config(bg='white', width=200, height=200)
+		self.frame_right_lower.config(bg=self.theme_bg_color, width=200, height=200)
 		self.frame_right_lower.grid(column=1, row=1)
 			# Bottom
 		self.frame_bottom = tk.Frame(self.root)
@@ -367,7 +367,7 @@ class MP_GUI:
 		# LABEL
 			# Selection Type
 		self.label_selection_type = tk.Label(self.frame_right_lower, text='Browse')
-		self.label_selection_type.config(pady=6, padx=5, width=10, height=1,font=self.font, bd=0, bg=self.theme_bg_color, fg=self.theme_color)
+		self.label_selection_type.config(font=self.font, bd=0, bg=self.theme_bg_color, fg=self.theme_color)
 		self.label_selection_type.grid(column=1, row=1)
 			# Current Song Playing
 		self.label_current_song_playing = tk.Label(self.frame_bottom, text='')
