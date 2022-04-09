@@ -325,7 +325,7 @@ class MP_GUI:
 		self.button_pause.config(activebackground=self.theme_color_accent, bg=self.theme_color, width=200)
 		self.button_pause.grid(column=0, row=1, columnspan=2, padx=(40,0))
 			# Stop
-		self.button_stop = tk.Button(self.frame_left, text='Stop', image=self.img_stop, command=self.music_player.stop_song)
+		self.button_stop = tk.Button(self.frame_left, text='Stop', image=self.img_stop, command=self.stop_song_label_update)
 		self.button_stop.config(activebackground=self.theme_color_accent, bg=self.theme_color, width=200)
 		self.button_stop.grid(column=0, row=2, columnspan=2, padx=(40,0))
 			# Previous
@@ -370,7 +370,7 @@ class MP_GUI:
 		self.label_selection_type.config(pady=6, padx=5, width=10, height=1,font=self.font, bd=0, bg=self.theme_bg_color, fg=self.theme_color)
 		self.label_selection_type.grid(column=1, row=1)
 			# Current Song Playing
-		self.label_current_song_playing = tk.Label(self.frame_bottom)
+		self.label_current_song_playing = tk.Label(self.frame_bottom, text='')
 		self.label_current_song_playing.config(width=90, bg=self.theme_bg_color, fg=self.theme_color, font=self.font)
 		self.label_current_song_playing.grid(column=0, row=0, pady=10)
 
@@ -401,7 +401,7 @@ class MP_GUI:
 		# Adds songs from the music list to the listbox to be displayed and interacted with
 		tracker = 0
 		self.listbox_music.delete(0, tk.END)
-		for s in self.music_player.song_list(self.music_player.playlist_songs):
+		for s in self.music_player.playlist_songs:
 			self.listbox_music.insert(tracker, s.split('/')[-1].split('.')[0])
 			tracker += 1
 			# if s.split('/')[-1].split('.')[0] in self.listbox_music.get(0,tk.END):
@@ -456,6 +456,10 @@ class MP_GUI:
 			[self.music_player.song].split('/')[-1].split('.')[0] + ' (' + \
 			str(minutes) + 'm:' + str(seconds) + 's)')
 
+	# Stops song and returns label text of current playing song to empty string
+	def stop_song_label_update(self):
+		self.music_player.stop_song()
+		self.label_current_song_playing.config(text='')
 			
 		
 		
