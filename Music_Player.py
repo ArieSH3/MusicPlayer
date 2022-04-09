@@ -53,10 +53,12 @@
 	 ______________________________________________________________________________________
 
 	- ***Make a functional Remove From Playlist button that will give the user an option to
-		select and remove songs that they no longer want in the list(box) 		(STILL HAS ISSUE)
+		select and remove songs that they no longer want in the list(box)
 
 		### ISSUE is that when trying to remove/pop elements that came from different folders
 			it for some reason shows IndexError: pop index out of range
+			(FIXED by changing the if check value from 
+			playlist_songs >= song   to   playlist_songs > song) and now it works perfectly		 (DONE)
 	 ______________________________________________________________________________________
 
 	- *Maybe try to give option to expand the window with (root.geometry(higher res)) if it can
@@ -134,7 +136,7 @@ class MusicPlayer:
 	def remove_from_playlist(self, song):
 		# Checks if index wont be out of bound since removing one lowers number of elements in a list
 		# so if index higher than number of elements it will just remove the final element
-		if len(self.playlist_songs) >= song:
+		if len(self.playlist_songs) > song:
 			self.playlist_songs.pop(song)
 		else:
 			self.playlist_songs.pop()
