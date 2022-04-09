@@ -466,7 +466,11 @@ def get_music_location():
 	with open('music_folder_location.txt', 'r') as f:
 		location = f.read()
 		f.close()
-		return location
+		if os.path.exists(location):
+			return location
+		else:
+			print('Error: path does not exist!')
+		
 		
 		
 
