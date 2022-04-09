@@ -22,7 +22,7 @@
 	- *** Set up frames in tkinter as children of main root and dont pack, but grid them ***
 		  so new frame can be added as grid(column=0, row=2, columnspan=2) in which
 		  a song timetracker will be placed (It will be a bit of work and probably wont look
-		  the same)
+		  the same)														
 
 		  _______________________________
 		  | ____________  ______________ |
@@ -32,7 +32,7 @@
 		  | ____________________________ |
 		  ||        time tracker        ||
 		  ||____________________________||
-		  |______________________________|
+		  |______________________________|														(DONE)
 	 ______________________________________________________________________________________
 
 
@@ -53,7 +53,10 @@
 	 ______________________________________________________________________________________
 
 	- ***Make a functional Remove From Playlist button that will give the user an option to
-		select and remove songs that they no longer want in the list(box) 						(DONE)
+		select and remove songs that they no longer want in the list(box) 		(STILL HAS ISSUE)
+
+		### ISSUE is that when trying to remove/pop elements that came from different folders
+			it for some reason shows IndexError: pop index out of range
 	 ______________________________________________________________________________________
 
 	- *Maybe try to give option to expand the window with (root.geometry(higher res)) if it can
@@ -70,6 +73,12 @@
 
 	- **Add buttons that skip the song 10 seconds forward and 10 seconds backward every time they
 		are clicked
+	______________________________________________________________________________________
+	
+	- **Add a label that will show what song is currently being played and duration of the song  (DONE)
+	______________________________________________________________________________________
+
+	-
 
 
 '''
@@ -80,6 +89,7 @@ import pprint
 import time
 import tkinter as tk
 from tkinter import filedialog
+from mutagen.mp3 import MP3 # Can access file metadata
 
 class MusicPlayer:
 
@@ -92,8 +102,8 @@ class MusicPlayer:
 		self.current_song = None
 		self.song = 0
 		self.song_stopped = False
-		#self.filepath = []
 		self.playlist_songs = []
+		#self.song_length = None
 
 		pygame.mixer.init()
 
@@ -119,6 +129,7 @@ class MusicPlayer:
 			if self.filepath[s] not in self.playlist_songs:
 				self.playlist_songs.append(self.filepath[s])
 
+
 	# Enable removal of songs from current playlist
 	def remove_from_playlist(self, song):
 		# Checks if index wont be out of bound since removing one lowers number of elements in a list
@@ -131,43 +142,50 @@ class MusicPlayer:
 
 	def get_song(self, song): # Pick and load the song in the player
 		self.song = song
-		if self.current_song == None:
-			self.current_song = self.song
-		#return self.song
+		print('Song number: ', self.song)
+		# if self.current_song == None:
+		# 	self.current_song = self.song
 
 	
 	def play_song(self): # Play loaded song
 		# Checks if current song is the same as the picked song and
 		# if not then it means that user chose another song and is trying
-		# to play it. This code then acts accordingly
+		# to play it.
+		# *Bug was that the song couldn't be changed with play button until the 
+		# actual song ended on its own.
+		# This code runs when the first song since program started is played
 		if self.song != self.current_song:# and self.current_song != None:
+			print(1)
 			self.current_song = self.song
-			pygame.mixer.music.load(self.playlist_songs[self.current_song])
+			pygame.mixer.music.load(self.playlist_songs[self.song])
 			pygame.mixer.music.play()
 
-		if self.__audio_paused: # Checks if song is paused (Means it is already loaded and played) and unpauses it
+		# Checks if song is paused (Means it is already loaded and played) and unpauses it
+		if self.__audio_paused: 
+			print(2)
 			# FIX!: Checks if song is stopped and if so then it wont try to
 			# unpause but instead just load and play the song again
 			# *Bug was that if you pause a song and then stop it and try to play,
 			# it would first unpause and then play it on the second click
 			if self.song_stopped:
-				pygame.mixer.music.load(self.playlist_songs[self.current_song])
+				print(3)
+				pygame.mixer.music.load(self.playlist_songs[self.song])
 				pygame.mixer.music.play()
 				self.song_stopped = False
 			# Else if paused and not stopped then it just unpauses it
 			else:
+				print(4)
 				pygame.mixer.music.unpause()
 				print('Unpaused')
 				self.__audio_paused = False
 		# Checks if audio paused and if audio is already playing then play_song wont rewind it but instead
 		# it will do nothing thanks to (not pygame.mixer.music.get_busy()) check
 		elif not self.__audio_paused and not pygame.mixer.music.get_busy(): # Checks if song is not paused(means it still isnt loaded and played)
-			pygame.mixer.music.load(self.playlist_songs[self.current_song])
+			print(5)
+			pygame.mixer.music.load(self.playlist_songs[self.song])
 			pygame.mixer.music.play()
-			print('Playing: ', self.playlist_songs[self.song].split('.')[0])
+			#print('Playing: ', self.playlist_songs[self.song].split('.')[0])
 			self.song_stopped = False
-
-		self.current_song = self.song
 
 
 	def pause_song(self): # Pause current song
@@ -222,6 +240,22 @@ class MusicPlayer:
 	def song_position(self, song_time=None):
 		print(pygame.mixer.music.get_pos())
 
+	def song_length(self):
+		song_metadata = MP3(self.playlist_songs[self.song])
+		song_duration_seconds = song_metadata.info.length
+		
+		day = song_duration_seconds // (24 * 3600)
+		song_duration_seconds = song_duration_seconds % (24 * 3600)
+		hour = song_duration_seconds // 3600
+		song_duration_seconds %= 3600
+		minutes = song_duration_seconds // 60
+		song_duration_seconds %= 60
+		seconds = song_duration_seconds
+
+		print('Time: h:', int(hour), 'm:', int(minutes), 's:', int(seconds))
+
+		return [int(day), int(hour), int(minutes), int(seconds)]
+
 
 # Tkinter GUI
 class MP_GUI:
@@ -252,7 +286,7 @@ class MP_GUI:
 				# Upper
 		self.frame_right_upper = tk.Frame(self.root)
 		self.frame_right_upper.config(bg=self.theme_bg_color, width=200, height=200)
-		self.frame_right_upper.grid(column=1, row=0)
+		self.frame_right_upper.grid(column=1, row=0, padx=40)
 				# Lower
 		self.frame_right_lower = tk.Frame(self.root)
 		self.frame_right_lower.config(bg='white', width=200, height=200)
@@ -329,10 +363,14 @@ class MP_GUI:
 
 
 		# LABEL
+			# Selection Type
 		self.label_selection_type = tk.Label(self.frame_right_lower, text='Browse')
 		self.label_selection_type.config(pady=6, padx=5, width=10, height=1,font=self.font, bd=0, bg=self.theme_bg_color, fg=self.theme_color)
 		self.label_selection_type.grid(column=1, row=1)
-	
+			# Current Song Playing
+		self.label_current_song_playing = tk.Label(self.frame_bottom)
+		self.label_current_song_playing.config(width=90, bg=self.theme_bg_color, fg=self.theme_color, font=self.font)
+		self.label_current_song_playing.grid(column=0, row=0, pady=10)
 
 	# Checks the selection in list and loads it to get_song method of
 	# the MusicPlayer class
@@ -343,6 +381,7 @@ class MP_GUI:
 			# self.text_picked_song.insert(tk.END, self.music_player.song_list(i))
 			self.music_player.get_song(i)
 			self.music_player.play_song()
+			self.label_current_song_playing_update()
 
 	def update_listbox(self, remove=None):
 		# Checks if button to add song has been clicked(remove remains None/False)
@@ -397,6 +436,12 @@ class MP_GUI:
 			self.label_selection_type.config(text='Browse')
 			self.mult_browse_select = False
 			print('BROWSE')
+
+	# Updates labels text to the song name currently played and its duration in minutes and seconds
+	def label_current_song_playing_update(self):
+		self.label_current_song_playing.config(text=self.music_player.playlist_songs \
+			[self.music_player.song].split('/')[-1].split('.')[0] + ' (' + \
+			str(self.music_player.song_length()[2]) + 'm:' + str(self.music_player.song_length()[3]) + 's)')
 
 			
 		
